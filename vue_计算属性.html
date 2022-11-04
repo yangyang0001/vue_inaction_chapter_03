@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计算属性</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        {{text.split(",").reverse().join(",")}} &nbsp;&nbsp;&nbsp;&nbsp;
+        {{reverseMethod()}} &nbsp;&nbsp;&nbsp;&nbsp;
+        {{reverseText}} <br/>
+
+        {{prices}} <br/>    <!-- 计算属性的和 -->
+
+        {{date | formatDate}} <br/>
+
+        {{getFullName}}
+
+
+    </div>
+
+    <p>下面是app1 div</p>
+    <div id="app1"></div>
+
+    <p>下面是app2 div</p>
+    <div id="app2">
+        {{reverseText}}
+    </div>
+    
+    <p>下面是app3 div</p>
+    <div id="app3">
+        {{c_now}} &nbsp;&nbsp;&nbsp;&nbsp; {{m_now()}}
+    </div>
+    
+
+    <script>
+        const app = new Vue({
+            el: '#app',
+
+            data: {
+                text: '123,456',
+                
+                package1: [
+                    {
+                        name: 'iPhone 7', 
+                        price: 7199,
+                        count: 2
+                    }, 
+                    {
+                        name: 'iPad', 
+                        price: 2888,
+                        count: 1
+                    },
+                ],
+
+                package2: [
+                    {
+                        name: 'apple', 
+                        price: 3,
+                        count: 5
+                    },
+                    {
+                        name: 'banana', 
+                        price: 2,
+                        count: 10
+                    },
+                ],
+                
+                date: new Date(),
+
+                firstName: 'Yang',
+                lastName: 'Jianwei'
+            },
+
+            methods: {
+                reverseMethod: function() {
+                    return this.text.split(",").reverse().join(",");
+                },
+
+                defaultSDF: function(value) {
+                    return value < 10 ? '0' + value : value;
+                }
+            },
+
+            computed: {
+                reverseText: function() {
+                    return this.text.split(",").reverse().join(","); 
+                },
+
+                prices: function() {
+
+                    var prices = 0;
+
+                    for(var i = 0; i < this.package1.length; i++) {
+                        prices += this.package1[i].price * this.package1[i].count;
+                    }
+
+                    for(var i = 0; i < this.package2.length; i++) {
+                        prices += this.package2[i].price * this.package2[i].count;
+                    }
+
+                    return prices;
+                },
+
+                // 计算属性, 模拟 java 中的 set get 方法
+                getFullName: function() {
+                    return this.firstName + " " + this.lastName;
+                },
+            },
+
+            filters: {
+
+                formatDate: function(value) {
+                    var date = new Date(value);
+                    var year = that.defaultSDF(date.getFullYear());
+                    var mont = that.defaultSDF(date.getMonth() + 1);
+                    var days = that.defaultSDF(date.getDate());
+                    var hour = that.defaultSDF(date.getHours());
+                    var mins = that.defaultSDF(date.getMinutes());
+                    var secs = that.defaultSDF(date.getSeconds());
+
+                    return year + '-' + mont + '-' + days + ' ' + hour + ':' + mins + ':' + secs;
+                }
+
+            },
+
+            beforeCreate() {
+                console.log("beforeCreate invoke !");
+                that = this;
+            },
+
+            created() {
+                console.log("created invoke !");
+            },
+            
+            mounted() {
+                console.log("mounted invoke !");
+                var _this = this;
+                _this.timer = setInterval(function() {
+                    _this.date = new Date();    // 通过定时器 修改 date 数据
+                }, 10);
+            },
+            
+            beforeDestroy() {
+                console.log("beforeDestroy invoke !");
+                if(this.timer) {
+                    clearInterval(this.timer);  // 在 vue 实例销毁之前, 清除我们的定时器
+                }
+            },
+        });
+
+
+        const app1 = new Vue({
+            el: '#app1',
+            data: {
+                text: 'abc,def'
+            }
+        });
+        const app2 = new Vue({
+            el: '#app2',
+            data: {},
+            computed: {
+                reverseText: function() {
+                    return app1.text.split(",").reverse().join(",");
+                }
+            }
+        });
+
+        const app3 = new Vue({
+            el: '#app3',
+            data: {
+            },
+            computed: {
+                c_now: function() {
+                    return Date.now();
+                }
+            },
+            methods: {
+                m_now: function() {
+                    return Date.now();
+                }
+            }
+        });
+        
+    </script>
+</body>
+
+</html>
